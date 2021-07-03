@@ -1,0 +1,325 @@
+---
+Title: EDA Analysis on an advertising dataset
+Author: Joy Kiriba
+Date: 02/07/2021
+Output: html_document
+editor_options:
+  chunk_output_type: inline
+---
+
+#1. Defining the Question
+
+##a.Specifying the data analytic question
+``` Identify which individuals are most likely to click on ads.```
+
+##b) Defining the metric of success
+``` When we are able to identify the individuals likely to click on ads based on the information and data given.```
+
+##c) Understanding the context
+```A Kenyan entrepreneur has created an online cryptography course and would want to advertise it on her blog. She currently targets audiences originating from various countries. In the past, she ran ads to advertise a related course on the same blog and collected data in the process. She would now like to employ my services as a Data Science Consultant to help her identify which individuals are most likely to click on her ads.```
+
+##d) Recording the experimental design
+```The process will entail: 
+* Define the question, the metric for success, the context, experimental design taken.
+
+* Read and explore the given dataset.
+
+* Define the appropriateness of the available data to answer the given question.
+
+* Find and deal with outliers, anomalies, and missing data within the dataset.
+
+* Perform univariate and bivariate analysis recording my observations.```
+
+##e) Data Relevance
+
+```The data provided is very relevant and has a wide range of variables to consider in achieving our main objective of this project. 
+
+[Advertising dataset](http://bit.ly/IPAdvertisingData)```
+
+
+#2. Reading the Data
+```{r}
+
+# Loading our data set
+advertising <- read.csv('advertising.csv')
+
+```
+
+#3. Checking the data
+```{r}
+# Viewing the top 6 entries
+head(advertising)
+
+#viewing the whole data set
+View(advertising)
+
+#Data types of the columns
+str(advertising)
+
+#Statistical summary of the data set
+summary(advertising)
+
+#checking the number of entries and attributes
+dim(advertising)
+
+#checking the class of our object
+class(advertising)
+
+```
+#4. Tidying the data/ Data Cleaning
+
+```*Checking for missing data*```
+```{r}
+#Checking for missing data
+colSums(is.na(advertising))
+
+```
+```There are no missing values in our data set.```
+
+```*Checking for duplicates*```
+```{r}
+duplicated.rows <- advertising[duplicated(advertising),]
+duplicated.rows
+
+```
+```There is no duplicated data in our dataset```
+
+```*Checking for outliers*```
+
+```{r}
+#Create a list of numeric columns
+num.cols <- list(advertising$Daily.Time.Spent.on.Site,advertising$Age,
+advertising$Area.Income,advertising$Daily.Internet.Usage,advertising$Male, advertising$Clicked.on.Ad)
+
+#Checking for outliers
+boxplot(num.cols, names=c('Daily.Time.Spent.on.Site', 'Age', 'Area.Income', 'Daily.Internet.Usage', 'Male', 'Clicked.on.Ad'), main='Boxplots to show Outliers', las=2)
+
+#Listing the outliers
+boxplot.stats(advertising$Area.Income)$out
+
+```
+```{r}
+#Plotting boxplots of individual columns
+
+boxplot(advertising$Daily.Time.Spent.on.Site, main='Boxplot of Daily time spent on site', xlab='Daily Time spent on the site', ylab='value')
+boxplot(advertising$Age, main='Boxplot of age', xlab='Age', ylab='Value')
+boxplot(advertising$Area.Income, main='Boxplot of area income', xlab='Area income', ylab='Value')
+boxplot(advertising$Daily.Internet.Usage, main='Boxplot of Daily Internet Usage', xlab='Daily Internet Usage', ylab='Value')
+boxplot(advertising$Male, main='Boxplot of Gender', xlab='Gender', ylab='Value')
+boxplot(advertising$Clicked.on.Ad, main='Boxplot of clicked on ad', xlab='Clicked on ad', ylab='Value')
+ 
+```
+```The outliers in area income might be due to low numbers of add clicks so no need to remove them.```
+
+#5 Univariate Exploratory Data Analysis
+## Measures of Central Tendancy
+
+```{r}
+#Finding the mean
+colMeans(advertising[sapply(advertising, is.numeric)])
+
+#Finding the median
+#loading the tidyverse and robustbase(for the colMedians function) libraries
+library(robustbase)
+library(tidyverse)
+advertising%>%
+  select_if(is.numeric) %>%
+  as.matrix()%>%
+  colMedians()
+
+#Finding the mode
+mode <- function(x) {
+  uniq_data <- unique(x)
+  map_data <- match(x, uniq_data)
+  tab_data <- tabulate(map_data)
+  max_val <- max(tab_data)
+  uniq_data[tab_data == max_val]
+}
+
+mode(advertising$Daily.Time.Spent.on.Site)
+mode(advertising$Age)
+mode(advertising$Area.Income)
+mode(advertising$Daily.Internet.Usage)
+mode(advertising$Ad.Topic.Line)
+mode(advertising$City)
+mode(advertising$Male)
+mode(advertising$Country)
+mode(advertising$Timestamp)
+mode(advertising$Clicked.on.Ad)
+
+```
+## Measures of Dispersion
+```{r}
+#Finding the minimum
+num.cols <- list(advertising$Daily.Time.Spent.on.Site,advertising$Age,
+advertising$Area.Income,advertising$Daily.Internet.Usage,advertising$Male, advertising$Clicked.on.Ad)
+
+min(advertising$Daily.Time.Spent.on.Site)
+min(advertising$Age)
+min(advertising$Area.Income)
+min(advertising$Daily.Internet.Usage)
+min(advertising$Male)
+min(advertising$Clicked.on.Ad)
+
+#Finding the maximum
+max(advertising$Daily.Time.Spent.on.Site)
+max(advertising$Age)
+max(advertising$Area.Income)
+max(advertising$Daily.Internet.Usage)
+max(advertising$Male)
+max(advertising$Clicked.on.Ad)
+
+#Finding the Range
+range(advertising$Daily.Time.Spent.on.Site)
+range(advertising$Age)
+range(advertising$Area.Income)
+range(advertising$Daily.Internet.Usage)
+range(advertising$Male)
+range(advertising$Clicked.on.Ad)
+
+#Finding the quantiles
+quantile(advertising$Daily.Time.Spent.on.Site)
+quantile(advertising$Age)
+quantile(advertising$Area.Income)
+quantile(advertising$Daily.Internet.Usage)
+quantile(advertising$Male)
+quantile(advertising$Clicked.on.Ad)
+
+#Finding the variance
+var(advertising$Daily.Time.Spent.on.Site)
+var(advertising$Age)
+var(advertising$Area.Income)
+var(advertising$Daily.Internet.Usage)
+var(advertising$Male)
+var(advertising$Clicked.on.Ad)
+
+#Finding the Standard Deviation
+sd(advertising$Daily.Time.Spent.on.Site)
+sd(advertising$Age)
+sd(advertising$Area.Income)
+sd(advertising$Daily.Internet.Usage)
+sd(advertising$Male)
+sd(advertising$Clicked.on.Ad)
+
+```
+## Univariate Data analysis Graphicals
+```{r}
+#Creating a frequency table for city
+city <- advertising$City
+freq_city <- table(city)
+freq_city
+
+#Creating a frequency table for country
+country <- advertising$Country
+freq_country <- table(country)
+freq_country
+
+#Creating a histogram for daily time spent on site
+hist(advertising$Daily.Time.Spent.on.Site)
+
+#Creating a histogram for age
+hist(advertising$Age)
+
+#Creating a histogram for Area Income
+hist(advertising$Area.Income)
+
+#Creating a histogram of daily internet usage
+hist(advertising$Daily.Internet.Usage)
+
+#Creating a histogram for Male
+hist(advertising$Male)
+
+#Frequency table of Male
+table(advertising$Male)
+
+#Creating a histogram for clicked on ad
+hist(advertising$Clicked.on.Ad)
+
+#Frequency table of clicked on ad
+table(advertising$Clicked.on.Ad)
+
+
+```
+### Observations from Univariate Analysis
+```
+* Most people in the dataset are between the age of 25 and 40 years.
+* The highest frequency of area income is between 60000 and 70000.
+* Males are more than female but not with a big margin.
+* Those who clicked on the ad are equal to those that did not.
+* Highest daily internet usage is 269.96.
+* The most frequent time spent on site is 80
+
+```
+#6. Bivariate and Multivariate Data Analysis
+```{r}
+#Finding the covariance
+cov <- cov(advertising[, unlist(lapply(advertising, is.numeric))])
+round(cov, 3)
+
+#Finding the correlation
+cor <- cor(advertising[, unlist(lapply(advertising, is.numeric))])
+round(cor, 3)
+
+
+```
+## Bivariate and Multivariate Graphicals
+```{r}
+#Plotting a scatterplot of daily time spent on site and clicked on ad
+#num.cols <- list(advertising$Daily.Time.Spent.on.Site,advertising$Age,
+#advertising$Area.Income,advertising$Daily.Internet.Usage,advertising$Male, advertising$Clicked.on.Ad)
+daily.time.spent.on.site <- advertising$Daily.Time.Spent.on.Site
+clicked.on.ad <- advertising$Clicked.on.Ad
+
+plot(daily.time.spent.on.site, clicked.on.ad, xlab='Daily time spent on site', ylab='Clicked on ad')
+
+#Plotting a scatter plot of male against clicked on ad
+male <- advertising$Male
+clicked.on.ad <- advertising$Clicked.on.Ad
+plot(male, clicked.on.ad, xlab='male', ylab='clicked on ad')
+
+#Plotting area income and clicked on add
+area.income <- advertising$Area.Income
+clicked.on.ad <- advertising$Clicked.on.Ad
+plot(area.income, clicked.on.ad, xlab='Area income', ylab='Clicked on ad')
+
+#Plotting scatter plot of age and clicked on ad
+age <- advertising$Age
+clicked.on.ad <- advertising$Clicked.on.Ad
+plot(age, clicked.on.ad, xlab='Age', ylab='Clicked on label')
+
+#Plottin scatter plot of daily internet usage and clicked on ad
+daily.internet.usage <- advertising$Daily.Internet.Usage
+clicked.on.ad <- advertising$Clicked.on.Ad
+plot(daily.internet.usage, clicked.on.ad, xlab='Daily internet usage', ylab='Clicked on ad')
+
+```
+
+```{r}
+#Plotting a heat map using the correlation matrix
+heatmap(x=cor, symm=TRUE)
+
+#Plotting a correlogram
+library('corrplot')
+corrplot(cor, type='upper', order='hclust', tl.color='black', tl.srt=45)
+```
+
+### Observations from Bivariate and Multivariate Analysis
+```
+* Daily internet usage and daily time spent on site are positively correlated.
+
+* Daily time spent on site and Daily Internet usage are negatively correlated to whether an individual clicks on an ad or not.
+
+* There is no strong correlation between male(gender), age, area income and whether an individual clicked on an ad or not.
+```
+## Conclusion
+```
+* The age and gender do not determine whether an individual clicks on an ad. This is probably because their interests on the internet are different from what the ad is about.
+
+* Daily time spent on a site has a negative correlation on whether an individual clicks on an ad probably because they are already on the site and are aware of what the ad is about.
+```
+## Recommendations
+```
+* I would recommend further research to be done to add more variables to the data set that would help determine whether an individual is more likely to click on an ad. This is because the present variables do not help us answer that question.
+
+* A classification model could be used to predict the likelihood of an individual clicking on an ad, thus giving more insight.
+```
